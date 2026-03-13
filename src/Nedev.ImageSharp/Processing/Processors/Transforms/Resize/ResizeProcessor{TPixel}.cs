@@ -3,6 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using Nedev.ImageSharp.Advanced;
 using Nedev.ImageSharp.Memory;
 using Nedev.ImageSharp.PixelFormats;

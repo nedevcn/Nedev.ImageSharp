@@ -130,10 +130,22 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
 
         private void EnsureBufferCapacity(int width, int height)
         {
-            // Only reallocate if the new size exceeds what we already have.
+            // If the requested size is <= current, we can likely reuse existing buffers.
+            // However, if the new size is much smaller we shrink to reduce memory usage.
             if (width <= this.bufferWidth && height <= this.bufferHeight)
             {
-                return;
+                // If the requested area is significantly smaller (<= 1/4), shrink.
+                long currentArea = (long)this.bufferWidth * this.bufferHeight;
+                long requestedArea = (long)width * height;
+
+                if (requestedArea > 0 && requestedArea * 4 < currentArea)
+                {
+                    // Reallocate to the smaller requested size.
+                }
+                else
+                {
+                    return;
+                }
             }
 
             this.transposedFirstPassBuffer?.Dispose();
