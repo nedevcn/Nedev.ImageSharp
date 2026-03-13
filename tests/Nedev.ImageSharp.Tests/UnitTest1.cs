@@ -96,6 +96,22 @@ public class BasicUsageTests
         Assert.Equal("AVIF", format.Name);
     }
 
+    [Fact]
+    public void CanDetectHeicFormatHeader()
+    {
+        // Minimal HEIF: ftyp box with major_brand "heic"
+        using var stream = new MemoryStream();
+
+        // size = 12, "ftyp", "heic"
+        stream.Write(BitConverter.GetBytes(12u), 0, 4);
+        stream.Write(new byte[] { (byte)'f', (byte)'t', (byte)'y', (byte)'p' }, 0, 4);
+        stream.Write(new byte[] { (byte)'h', (byte)'e', (byte)'i', (byte)'c' }, 0, 4);
+
+        stream.Position = 0;
+        IImageFormat format = Image.DetectFormat(stream);
+        Assert.Equal("HEIC", format.Name);
+    }
+
     private static MemoryStream CreatePngBasedIcoStream(Image<Rgba32> source)
     {
         using var pngStream = new MemoryStream();
