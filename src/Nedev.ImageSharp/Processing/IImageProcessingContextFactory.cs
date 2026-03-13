@@ -8,7 +8,7 @@ namespace Nedev.ImageSharp.Processing
     /// <summary>
     /// Represents an interface that will create IInternalImageProcessingContext instances
     /// </summary>
-    internal interface IImageProcessingContextFactory
+    public interface IImageProcessingContextFactory
     {
         /// <summary>
         /// Called during mutate operations to generate the image operations provider.

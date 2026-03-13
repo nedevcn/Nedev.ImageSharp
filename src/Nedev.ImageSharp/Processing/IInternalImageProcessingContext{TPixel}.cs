@@ -9,7 +9,7 @@ namespace Nedev.ImageSharp.Processing
     /// An interface for internal operations we don't want to expose on <see cref="IImageProcessingContext"/>.
     /// </summary>
     /// <typeparam name="TPixel">The pixel type.</typeparam>
-    internal interface IInternalImageProcessingContext<TPixel> : IImageProcessingContext
+    public interface IInternalImageProcessingContext<TPixel> : IImageProcessingContext
         where TPixel : unmanaged, IPixel<TPixel>
     {
         /// <summary>

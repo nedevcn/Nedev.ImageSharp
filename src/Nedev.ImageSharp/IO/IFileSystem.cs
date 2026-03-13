@@ -8,7 +8,7 @@ namespace Nedev.ImageSharp.IO
     /// <summary>
     /// A simple interface representing the filesystem.
     /// </summary>
-    internal interface IFileSystem
+    public interface IFileSystem
     {
         /// <summary>
         /// Returns a readable stream as defined by the path.

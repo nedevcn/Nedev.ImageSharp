@@ -112,6 +112,33 @@ public class BasicUsageTests
         Assert.Equal("HEIC", format.Name);
     }
 
+    [Fact]
+    public void CanDecodeEmbeddedPngInAvif()
+    {
+        using var image = new Image<Rgba32>(16, 16);
+        image[0, 0] = new Rgba32(255, 0, 0);
+
+        // Create a fake AVIF stream containing a PNG inside.
+        using var pngStream = new MemoryStream();
+        image.SaveAsPng(pngStream);
+        byte[] pngData = pngStream.ToArray();
+
+        using var avifStream = new MemoryStream();
+        // Fake AVIF header (ftyp + avif)
+        avifStream.Write(BitConverter.GetBytes(12u), 0, 4);
+        avifStream.Write(new byte[] { (byte)'f', (byte)'t', (byte)'y', (byte)'p' }, 0, 4);
+        avifStream.Write(new byte[] { (byte)'a', (byte)'v', (byte)'i', (byte)'f' }, 0, 4);
+
+        // Append PNG data
+        avifStream.Write(pngData, 0, pngData.Length);
+        avifStream.Position = 0;
+
+        using Image<Rgba32> decoded = Image.Load<Rgba32>(avifStream);
+        Assert.Equal(16, decoded.Width);
+        Assert.Equal(16, decoded.Height);
+        Assert.Equal(255, decoded[0, 0].R);
+    }
+
     private static MemoryStream CreatePngBasedIcoStream(Image<Rgba32> source)
     {
         using var pngStream = new MemoryStream();
