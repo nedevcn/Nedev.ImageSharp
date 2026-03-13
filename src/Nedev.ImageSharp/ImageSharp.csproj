@@ -13,6 +13,7 @@
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>
     <PackageTags>Image Resize Crop Gif Jpg Jpeg Bitmap Pbm Png Tga Tiff WebP</PackageTags>
     <Description>A fork of Nedev.ImageSharp v2.1.13 under Apache 2.0.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
@@ -24,6 +25,11 @@
   <ItemGroup>
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="5.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Include repository README in the NuGet package so it shows on NuGet.org -->
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('netstandard')) OR '$(TargetFramework)' == 'net472'">
