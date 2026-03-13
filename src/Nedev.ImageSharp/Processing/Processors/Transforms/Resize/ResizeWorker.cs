@@ -21,35 +21,77 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
     internal sealed class ResizeWorker<TPixel> : IDisposable
         where TPixel : unmanaged, IPixel<TPixel>
     {
-        private readonly Buffer2D<Vector4> transposedFirstPassBuffer;
+        private Buffer2D<Vector4> transposedFirstPassBuffer;
 
-        private readonly Configuration configuration;
+        private Configuration configuration;
 
-        private readonly PixelConversionModifiers conversionModifiers;
+        private PixelConversionModifiers conversionModifiers;
 
-        private readonly ResizeKernelMap horizontalKernelMap;
+        private ResizeKernelMap horizontalKernelMap;
 
-        private readonly Buffer2DRegion<TPixel> source;
+        private Buffer2DRegion<TPixel> source;
 
-        private readonly Rectangle sourceRectangle;
+        private Rectangle sourceRectangle;
 
-        private readonly IMemoryOwner<Vector4> tempRowBuffer;
+        private IMemoryOwner<Vector4> tempRowBuffer;
 
-        private readonly IMemoryOwner<Vector4> tempColumnBuffer;
+        private IMemoryOwner<Vector4> tempColumnBuffer;
 
-        private readonly ResizeKernelMap verticalKernelMap;
+        private ResizeKernelMap verticalKernelMap;
 
-        private readonly Rectangle targetWorkingRect;
+        private Rectangle targetWorkingRect;
 
-        private readonly Point targetOrigin;
+        private Point targetOrigin;
 
-        private readonly int windowBandHeight;
+        private int windowBandHeight;
 
-        private readonly int workerHeight;
+        private int workerHeight;
+
+        private int bufferWidth;
+
+        private int bufferHeight;
 
         private RowInterval currentWindow;
 
         public ResizeWorker(
+            Configuration configuration,
+            Buffer2DRegion<TPixel> source,
+            PixelConversionModifiers conversionModifiers,
+            ResizeKernelMap horizontalKernelMap,
+            ResizeKernelMap verticalKernelMap,
+            Rectangle targetWorkingRect,
+            Point targetOrigin)
+        {
+            this.Initialize(
+                configuration,
+                source,
+                conversionModifiers,
+                horizontalKernelMap,
+                verticalKernelMap,
+                targetWorkingRect,
+                targetOrigin);
+        }
+
+        public void Reset(
+            Configuration configuration,
+            Buffer2DRegion<TPixel> source,
+            PixelConversionModifiers conversionModifiers,
+            ResizeKernelMap horizontalKernelMap,
+            ResizeKernelMap verticalKernelMap,
+            Rectangle targetWorkingRect,
+            Point targetOrigin)
+        {
+            this.Initialize(
+                configuration,
+                source,
+                conversionModifiers,
+                horizontalKernelMap,
+                verticalKernelMap,
+                targetWorkingRect,
+                targetOrigin);
+        }
+
+        private void Initialize(
             Configuration configuration,
             Buffer2DRegion<TPixel> source,
             PixelConversionModifiers conversionModifiers,
@@ -81,23 +123,41 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
 
             this.workerHeight = Math.Min(this.sourceRectangle.Height, numberOfWindowBands * this.windowBandHeight);
 
-            this.transposedFirstPassBuffer = configuration.MemoryAllocator.Allocate2D<Vector4>(
-                this.workerHeight,
-                targetWorkingRect.Width,
-                preferContiguosImageBuffers: true,
-                options: AllocationOptions.Clean);
-
-            this.tempRowBuffer = configuration.MemoryAllocator.Allocate<Vector4>(this.sourceRectangle.Width);
-            this.tempColumnBuffer = configuration.MemoryAllocator.Allocate<Vector4>(targetWorkingRect.Width);
+            this.EnsureBufferCapacity(targetWorkingRect.Width, this.workerHeight);
 
             this.currentWindow = new RowInterval(0, this.workerHeight);
         }
 
+        private void EnsureBufferCapacity(int width, int height)
+        {
+            // Only reallocate if the new size exceeds what we already have.
+            if (width <= this.bufferWidth && height <= this.bufferHeight)
+            {
+                return;
+            }
+
+            this.transposedFirstPassBuffer?.Dispose();
+            this.tempRowBuffer?.Dispose();
+            this.tempColumnBuffer?.Dispose();
+
+            this.bufferWidth = width;
+            this.bufferHeight = height;
+
+            this.transposedFirstPassBuffer = this.configuration.MemoryAllocator.Allocate2D<Vector4>(
+                height,
+                width,
+                preferContiguosImageBuffers: true,
+                options: AllocationOptions.Clean);
+
+            this.tempRowBuffer = this.configuration.MemoryAllocator.Allocate<Vector4>(this.sourceRectangle.Width);
+            this.tempColumnBuffer = this.configuration.MemoryAllocator.Allocate<Vector4>(width);
+        }
+
         public void Dispose()
         {
-            this.transposedFirstPassBuffer.Dispose();
-            this.tempRowBuffer.Dispose();
-            this.tempColumnBuffer.Dispose();
+            this.transposedFirstPassBuffer?.Dispose();
+            this.tempRowBuffer?.Dispose();
+            this.tempColumnBuffer?.Dispose();
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]

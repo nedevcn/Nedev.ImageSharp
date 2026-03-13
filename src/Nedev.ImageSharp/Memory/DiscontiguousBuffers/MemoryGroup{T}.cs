@@ -281,7 +281,11 @@ namespace Nedev.ImageSharp.Memory
                 default:
                 {
                     this.GetMultiBufferPosition(y, width, out int bufferIdx, out int bufferStart);
-                    return this[bufferIdx].Span.Slice(bufferStart, width);
+
+                    // The underlying group is backed by Memory<T>, but some targets may treat the
+                    // Span property as ReadOnlySpan<T>. Using MemoryMarshal gives a writable Span.
+                    ref T reference = ref MemoryMarshal.GetReference(this[bufferIdx]);
+                    return MemoryMarshal.CreateSpan(ref Unsafe.Add(ref reference, bufferStart), width);
                 }
             }
         }

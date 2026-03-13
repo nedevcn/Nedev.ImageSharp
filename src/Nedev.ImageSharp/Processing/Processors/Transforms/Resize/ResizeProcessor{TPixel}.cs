@@ -16,6 +16,8 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
     internal class ResizeProcessor<TPixel> : TransformProcessor<TPixel>, IResamplingTransformImageProcessor<TPixel>
         where TPixel : unmanaged, IPixel<TPixel>
     {
+        private static readonly ThreadLocal<ResizeWorker<TPixel>?> WorkerCache = new(() => null);
+
         private readonly ResizeOptions options;
         private readonly int destinationWidth;
         private readonly int destinationHeight;
@@ -207,20 +209,84 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
 
             Buffer2DRegion<TPixel> sourceRegion = source.PixelBuffer.GetRegion(sourceRectangle);
 
-            // To reintroduce parallel processing, we would launch multiple workers
-            // for different row intervals of the image.
-            using var worker = new ResizeWorker<TPixel>(
-                configuration,
-                sourceRegion,
-                conversionModifiers,
-                horizontalKernelMap,
-                verticalKernelMap,
-                interest,
-                destinationRectangle.Location);
-            worker.Initialize();
+            // To reintroduce parallel processing, split the work across multiple workers.
+            // Each worker owns its own buffers but shares the precomputed kernel maps.
+            var parallelSettings = ParallelExecutionSettings.FromConfiguration(configuration);
+            int maxSteps = (int)Math.Min(1 + ((interest.Width * (long)interest.Height - 1) / parallelSettings.MinimumPixelsProcessedPerTask), int.MaxValue);
+            int numSteps = Math.Min(parallelSettings.MaxDegreeOfParallelism, maxSteps);
 
-            var workingInterval = new RowInterval(interest.Top, interest.Bottom);
-            worker.FillDestinationPixels(workingInterval, destination.PixelBuffer);
+            if (numSteps <= 1)
+            {
+                using var worker = new ResizeWorker<TPixel>(
+                    configuration,
+                    sourceRegion,
+                    conversionModifiers,
+                    horizontalKernelMap,
+                    verticalKernelMap,
+                    interest,
+                    destinationRectangle.Location);
+                worker.Initialize();
+
+                var workingInterval = new RowInterval(interest.Top, interest.Bottom);
+                worker.FillDestinationPixels(workingInterval, destination.PixelBuffer);
+
+                return;
+            }
+
+            int columnStep = (int)Math.Min(1 + ((interest.Width - 1L) / numSteps), int.MaxValue);
+            var parallelOptions = new System.Threading.Tasks.ParallelOptions
+            {
+                MaxDegreeOfParallelism = numSteps
+            };
+
+            // Leverage a per-thread cached worker to avoid repeated allocations.
+            // The worker's buffers are reused across resize calls.
+            ThreadLocal<ResizeWorker<TPixel>?> workerCache = WorkerCache;
+
+            System.Threading.Tasks.Parallel.For(
+                0,
+                numSteps,
+                parallelOptions,
+                i =>
+                {
+                    int left = interest.Left + i * columnStep;
+                    int right = Math.Min(interest.Right, left + columnStep);
+                    if (left >= right)
+                    {
+                        return;
+                    }
+
+                    var subInterest = new Rectangle(left, interest.Top, right - left, interest.Height);
+
+                    ResizeWorker<TPixel>? worker = workerCache.Value;
+                    if (worker is null)
+                    {
+                        worker = new ResizeWorker<TPixel>(
+                            configuration,
+                            sourceRegion,
+                            conversionModifiers,
+                            horizontalKernelMap,
+                            verticalKernelMap,
+                            subInterest,
+                            destinationRectangle.Location);
+                        workerCache.Value = worker;
+                    }
+                    else
+                    {
+                        worker.Reset(
+                            configuration,
+                            sourceRegion,
+                            conversionModifiers,
+                            horizontalKernelMap,
+                            verticalKernelMap,
+                            subInterest,
+                            destinationRectangle.Location);
+                    }
+
+                    worker.Initialize();
+                    worker.FillDestinationPixels(new RowInterval(subInterest.Top, subInterest.Bottom), destination.PixelBuffer);
+                });
+
         }
 
         private readonly struct NNRowOperation : IRowOperation

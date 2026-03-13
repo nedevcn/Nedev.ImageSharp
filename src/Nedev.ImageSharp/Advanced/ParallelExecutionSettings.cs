@@ -94,7 +94,10 @@ namespace Nedev.ImageSharp.Advanced
         /// <returns>The <see cref="ParallelExecutionSettings"/>.</returns>
         public static ParallelExecutionSettings FromConfiguration(Configuration configuration)
         {
-            return new ParallelExecutionSettings(configuration.MaxDegreeOfParallelism, configuration.MemoryAllocator);
+            return new ParallelExecutionSettings(
+                configuration.MaxDegreeOfParallelism,
+                configuration.MinimumPixelsProcessedPerTask,
+                configuration.MemoryAllocator);
         }
     }
 }

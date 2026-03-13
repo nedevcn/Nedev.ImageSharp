@@ -15,6 +15,7 @@ using Nedev.ImageSharp.Formats.Tiff;
 using Nedev.ImageSharp.Formats.Webp;
 using Nedev.ImageSharp.IO;
 using Nedev.ImageSharp.Memory;
+using Nedev.ImageSharp.Advanced;
 using Nedev.ImageSharp.Processing;
 
 namespace Nedev.ImageSharp
@@ -31,6 +32,7 @@ namespace Nedev.ImageSharp
         private const int DefaultStreamProcessingBufferSize = 8096;
         private int streamProcessingBufferSize = DefaultStreamProcessingBufferSize;
         private int maxDegreeOfParallelism = Environment.ProcessorCount;
+        private int minimumPixelsProcessedPerTask = ParallelExecutionSettings.DefaultMinimumPixelsProcessedPerTask;
         private MemoryAllocator memoryAllocator = MemoryAllocator.Default;
 
         /// <summary>
@@ -76,6 +78,25 @@ namespace Nedev.ImageSharp
                 }
 
                 this.maxDegreeOfParallelism = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the minimum number of pixels processed per task when using parallel processing.
+        /// Larger values reduce task overhead, smaller values increase parallelism.
+        /// Initialized with <see cref="ParallelExecutionSettings.DefaultMinimumPixelsProcessedPerTask"/> by default.
+        /// </summary>
+        public int MinimumPixelsProcessedPerTask
+        {
+            get => this.minimumPixelsProcessedPerTask;
+            set
+            {
+                if (value <= 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(this.MinimumPixelsProcessedPerTask));
+                }
+
+                this.minimumPixelsProcessedPerTask = value;
             }
         }
 
@@ -195,6 +216,7 @@ namespace Nedev.ImageSharp
         public Configuration Clone() => new()
         {
             MaxDegreeOfParallelism = this.MaxDegreeOfParallelism,
+            MinimumPixelsProcessedPerTask = this.MinimumPixelsProcessedPerTask,
             StreamProcessingBufferSize = this.StreamProcessingBufferSize,
             ImageFormatsManager = this.ImageFormatsManager,
             memoryAllocator = this.memoryAllocator,
