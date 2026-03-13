@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Nedev.ImageSharp.Formats;
 using Nedev.ImageSharp.Formats.Bmp;
 using Nedev.ImageSharp.Formats.Gif;
+using Nedev.ImageSharp.Formats.Ico;
 using Nedev.ImageSharp.Formats.Jpeg;
 using Nedev.ImageSharp.Formats.Pbm;
 using Nedev.ImageSharp.Formats.Png;
@@ -246,7 +247,8 @@ namespace Nedev.ImageSharp
                 new PbmConfigurationModule(),
                 new TgaConfigurationModule(),
                 new TiffConfigurationModule(),
-                new WebpConfigurationModule());
+                new WebpConfigurationModule(),
+                new IcoConfigurationModule());
     }
 }
 

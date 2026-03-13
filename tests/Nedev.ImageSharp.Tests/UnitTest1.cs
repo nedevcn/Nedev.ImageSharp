@@ -59,4 +59,48 @@ public class BasicUsageTests
         // Ensure pixel data is still accessible after resize.
         Assert.Equal(255, image[0, 0].R);
     }
+
+    [Fact]
+    public void CanDetectAndDecodePngBasedIco()
+    {
+        using var image = new Image<Rgba32>(16, 16);
+        image[0, 0] = new Rgba32(255, 0, 0);
+
+        using MemoryStream icoStream = CreatePngBasedIcoStream(image);
+
+        IImageFormat format = Image.DetectFormat(icoStream);
+        Assert.Equal("ICO", format.Name);
+
+        icoStream.Position = 0;
+        using Image decoded = Image.Load(icoStream);
+        Assert.Equal(16, decoded.Width);
+        Assert.Equal(16, decoded.Height);
+        Assert.Equal(255, ((Image<Rgba32>)decoded)[0, 0].R);
+    }
+
+    private static MemoryStream CreatePngBasedIcoStream(Image<Rgba32> source)
+    {
+        using var pngStream = new MemoryStream();
+        source.SaveAsPng(pngStream);
+        byte[] pngData = pngStream.ToArray();
+
+        var icoStream = new MemoryStream();
+
+        // ICONDIR
+        icoStream.Write(new byte[] { 0, 0, 1, 0, 1, 0 });
+
+        // Directory entry
+        icoStream.WriteByte((byte)source.Width);
+        icoStream.WriteByte((byte)source.Height);
+        icoStream.WriteByte(0); // color count
+        icoStream.WriteByte(0); // reserved
+        icoStream.Write(BitConverter.GetBytes((ushort)1), 0, 2); // planes
+        icoStream.Write(BitConverter.GetBytes((ushort)32), 0, 2); // bit count
+        icoStream.Write(BitConverter.GetBytes((uint)pngData.Length), 0, 4);
+        icoStream.Write(BitConverter.GetBytes((uint)6 + 16), 0, 4);
+
+        icoStream.Write(pngData, 0, pngData.Length);
+        icoStream.Position = 0;
+        return icoStream;
+    }
 }
