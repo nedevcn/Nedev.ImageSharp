@@ -1,7 +1,9 @@
 using System.IO;
 using Nedev.ImageSharp;
 using Nedev.ImageSharp.Advanced;
+using Nedev.ImageSharp.Formats;
 using Nedev.ImageSharp.PixelFormats;
+using Nedev.ImageSharp.Processing;
 using Xunit;
 
 namespace Nedev.ImageSharp.Tests;
@@ -72,10 +74,26 @@ public class BasicUsageTests
         Assert.Equal("ICO", format.Name);
 
         icoStream.Position = 0;
-        using Image decoded = Image.Load(icoStream);
+        using Image<Rgba32> decoded = Image.Load<Rgba32>(icoStream);
         Assert.Equal(16, decoded.Width);
         Assert.Equal(16, decoded.Height);
-        Assert.Equal(255, ((Image<Rgba32>)decoded)[0, 0].R);
+        Assert.Equal(255, decoded[0, 0].R);
+    }
+
+    [Fact]
+    public void CanDetectAvifFormatHeader()
+    {
+        // Minimal AVIF: ftyp box with major_brand "avif"
+        using var stream = new MemoryStream();
+
+        // size = 12, "ftyp", "avif"
+        stream.Write(BitConverter.GetBytes(12u), 0, 4);
+        stream.Write(new byte[] { (byte)'f', (byte)'t', (byte)'y', (byte)'p' }, 0, 4);
+        stream.Write(new byte[] { (byte)'a', (byte)'v', (byte)'i', (byte)'f' }, 0, 4);
+
+        stream.Position = 0;
+        IImageFormat format = Image.DetectFormat(stream);
+        Assert.Equal("AVIF", format.Name);
     }
 
     private static MemoryStream CreatePngBasedIcoStream(Image<Rgba32> source)

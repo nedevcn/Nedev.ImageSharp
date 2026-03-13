@@ -11,6 +11,7 @@ using Nedev.ImageSharp.Formats.Ico;
 using Nedev.ImageSharp.Formats.Jpeg;
 using Nedev.ImageSharp.Formats.Pbm;
 using Nedev.ImageSharp.Formats.Png;
+using Nedev.ImageSharp.Formats.Avif;
 using Nedev.ImageSharp.Formats.Tga;
 using Nedev.ImageSharp.Formats.Tiff;
 using Nedev.ImageSharp.Formats.Webp;
@@ -248,7 +249,8 @@ namespace Nedev.ImageSharp
                 new TgaConfigurationModule(),
                 new TiffConfigurationModule(),
                 new WebpConfigurationModule(),
-                new IcoConfigurationModule());
+                new IcoConfigurationModule(),
+                new AvifConfigurationModule());
     }
 }
 
