@@ -1,0 +1,19 @@
+<#@include file="_Common.ttinclude" #>
+<#@ output extension=".cs" #>
+namespace Nedev.ImageSharp.PixelFormats
+{
+    /// <content>
+    /// Provides optimized overrides for bulk operations.
+    /// </content>
+    public partial struct Bgra32
+    {
+        /// <summary>
+        /// Provides optimized overrides for bulk operations.
+        /// </summary>
+        internal partial class PixelOperations : PixelOperations<Bgra32>
+        {
+            <# GenerateAllDefaultConversionMethods("Bgra32"); #>
+        }
+    }
+}
+

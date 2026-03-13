@@ -1,0 +1,72 @@
+# Build output
+bin/
+obj/
+
+# Visual Studio temporary files, build results, and
+# user-specific files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+*.sln.iml
+
+# VS Code
+.vscode/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Visual Studio cache/options
+*.cache
+*.ilk
+*.meta
+*.obj
+*.pdb
+*.idb
+*.ipch
+*.iobj
+*.ipdb
+
+# Generated files
+*.Generated.cs
+*.g.cs
+*.g.i.cs
+*.AssemblyInfo.cs
+
+# T4 generated output
+*.tt.cs
+
+# Backup & logs
+*.log
+*.vsix
+
+# Node / npm
+node_modules/
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# JetBrains Rider
+.idea/
+
+# JetBrains Rider caches
+*.sln.iml
+
+# Temporary files
+*.tmp
+*~
+
+# User-specific files
+*.user
+*.userprefs
+
+# Exclude bin/obj in the root project as well
+/src/**/bin/
+/src/**/obj/
