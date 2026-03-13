@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Enable nullable reference types across all projects -->
+    <Nullable>enable</Nullable>
+
+    <!-- Use latest C# language features -->
+    <LangVersion>latest</LangVersion>
+
+    <!-- Treat warnings as errors in CI builds -->
+    <TreatWarningsAsErrors>$(CI)</TreatWarningsAsErrors>
+  </PropertyGroup>
+</Project>

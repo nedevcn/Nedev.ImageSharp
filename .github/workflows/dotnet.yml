@@ -1,0 +1,30 @@
+name: .NET
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        dotnet-version: ["8.0"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+
+      - name: Restore
+        run: dotnet restore Nedev.ImageSharp.sln
+
+      - name: Build
+        run: dotnet build Nedev.ImageSharp.sln -c Release --no-restore
+
+      - name: Test
+        run: dotnet test Nedev.ImageSharp.sln -c Release --no-build --verbosity normal

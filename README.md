@@ -11,6 +11,18 @@ cd d:\Project\Nedev.ImageSharp
 dotnet build Nedev.ImageSharp.sln
 ```
 
+## Tests
+
+Run all tests:
+
+```powershell
+dotnet test -c Release
+```
+
+## CI
+
+This repository includes a GitHub Actions workflow (`.github/workflows/dotnet.yml`) that builds and tests on every push/PR.
+
 ## Usage
 
 The API surface is identical to ImageSharp v2.x. Example:
