@@ -6,8 +6,8 @@
     <AssemblyTitle>Nedev.ImageSharp</AssemblyTitle>
     <RootNamespace>Nedev.ImageSharp</RootNamespace>
     <PackageId>Nedev.ImageSharp</PackageId>
-    <Version>1.0.1</Version>
-    <PackageVersion>1.0.1</PackageVersion>
+    <Version>1.0.2</Version>
+    <PackageVersion>1.0.2</PackageVersion>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RepositoryUrl Condition="'$(RepositoryUrl)' == ''">https://github.com/Nedev/ImageSharp/</RepositoryUrl>
     <PackageProjectUrl>$(RepositoryUrl)</PackageProjectUrl>

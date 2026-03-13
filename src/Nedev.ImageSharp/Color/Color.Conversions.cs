@@ -150,7 +150,7 @@ namespace Nedev.ImageSharp
         public static explicit operator Color(Vector4 source) => new(source);
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Rgba32 ToRgba32()
+        public Rgba32 ToRgba32()
         {
             if (this.boxedHighPrecisionPixel is null)
             {
@@ -163,7 +163,7 @@ namespace Nedev.ImageSharp
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Bgra32 ToBgra32()
+        public Bgra32 ToBgra32()
         {
             if (this.boxedHighPrecisionPixel is null)
             {
@@ -176,7 +176,7 @@ namespace Nedev.ImageSharp
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Argb32 ToArgb32()
+        public Argb32 ToArgb32()
         {
             if (this.boxedHighPrecisionPixel is null)
             {
@@ -189,7 +189,7 @@ namespace Nedev.ImageSharp
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Abgr32 ToAbgr32()
+        public Abgr32 ToAbgr32()
         {
             if (this.boxedHighPrecisionPixel is null)
             {
@@ -215,7 +215,7 @@ namespace Nedev.ImageSharp
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Bgr24 ToBgr24()
+        public Bgr24 ToBgr24()
         {
             if (this.boxedHighPrecisionPixel is null)
             {
@@ -228,7 +228,7 @@ namespace Nedev.ImageSharp
         }
 
         [MethodImpl(InliningOptions.ShortMethod)]
-        internal Vector4 ToVector4()
+        public Vector4 ToVector4()
         {
             if (this.boxedHighPrecisionPixel is null)
             {

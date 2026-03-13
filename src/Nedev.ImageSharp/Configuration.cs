@@ -200,7 +200,7 @@ namespace Nedev.ImageSharp
         /// <summary>
         /// Gets or sets the image operations provider factory.
         /// </summary>
-        internal IImageProcessingContextFactory ImageOperationsProvider { get; set; } = new DefaultImageOperationsProviderFactory();
+        public IImageProcessingContextFactory ImageOperationsProvider { get; set; } = new DefaultImageOperationsProviderFactory();
 
         /// <summary>
         /// Registers a new format provider.
@@ -241,7 +241,7 @@ namespace Nedev.ImageSharp
         /// <see cref="WebpConfigurationModule"/>.
         /// </summary>
         /// <returns>The default configuration of <see cref="Configuration"/>.</returns>
-        internal static Configuration CreateDefaultInstance() => new(
+        public static Configuration CreateDefaultInstance() => new(
                 new PngConfigurationModule(),
                 new JpegConfigurationModule(),
                 new GifConfigurationModule(),
