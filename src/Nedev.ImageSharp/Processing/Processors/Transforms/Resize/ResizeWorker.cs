@@ -181,14 +181,14 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
 
         public void FillDestinationPixels(RowInterval rowInterval, Buffer2D<TPixel> destination)
         {
-            Span<Vector4> tempColSpan = this.tempColumnBuffer.GetSpan();
-
             // When creating transposedFirstPassBuffer, we made sure it's contiguous:
             Span<Vector4> transposedFirstPassBufferSpan = this.transposedFirstPassBuffer.DangerousGetSingleSpan();
 
             int left = this.targetWorkingRect.Left;
             int right = this.targetWorkingRect.Right;
             int width = this.targetWorkingRect.Width;
+            Span<Vector4> tempColSpan = this.tempColumnBuffer.GetSpan().Slice(0, width);
+
             for (int y = rowInterval.Min; y < rowInterval.Max; y++)
             {
                 // Ensure offsets are normalized for cropping and padding.
@@ -271,4 +271,3 @@ namespace Nedev.ImageSharp.Processing.Processors.Transforms
         }
     }
 }
-

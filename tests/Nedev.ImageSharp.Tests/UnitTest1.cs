@@ -63,6 +63,27 @@ public class BasicUsageTests
     }
 
     [Fact]
+    public void Resize_ParallelWorkerCache_DoesNotReuseOversizedTemporaryColumnSpan()
+    {
+        var config = new Configuration
+        {
+            MinimumPixelsProcessedPerTask = 1,
+            MaxDegreeOfParallelism = Math.Max(2, Environment.ProcessorCount)
+        };
+
+        using (var widerImage = new Image<Rgba32>(2000, 300))
+        using (widerImage.Clone(config, ctx => ctx.Resize(1200, 180)))
+        {
+        }
+
+        using var narrowerImage = new Image<Rgba32>(2000, 300);
+        using Image<Rgba32> resized = narrowerImage.Clone(config, ctx => ctx.Resize(800, 120));
+
+        Assert.Equal(800, resized.Width);
+        Assert.Equal(120, resized.Height);
+    }
+
+    [Fact]
     public void CanDetectAndDecodePngBasedIco()
     {
         using var image = new Image<Rgba32>(16, 16);
